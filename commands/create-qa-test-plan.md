@@ -1,6 +1,6 @@
 ---
 description: Author a QA test plan for a feature from its Figma design, independent of dev's implementation.
-argument-hint: [feature-name] [figma-link] [qa-repo-path?]
+argument-hint: [feature-name] [figma-link] [--code-repo=path?] [--qa-repo=path?]
 ---
 
 Author a QA test plan for the feature in `$ARGUMENTS`, from its Figma design alone. This runs in parallel with dev's implementation — it does not read or wait for any `ono-react-native-dev-plugin` output.
@@ -9,11 +9,16 @@ Author a QA test plan for the feature in `$ARGUMENTS`, from its Figma design alo
 2. Apply the `qa-test-planning` skill methodology via the `qa-test-designer` agent, passing it the feature name and Figma link.
 3. The agent inspects the actual Figma frames/screens/states via the `figma` MCP server (`get_metadata`, `get_design_context`, `get_screenshot`) and derives functional test cases, edge/negative cases, and open questions grounded strictly in what's designed — it does not invent flows the design doesn't show.
 4. Have the agent populate `templates/qa-test-plan-template.md` in full.
-5. Resolve the QA sibling repo path, in this order:
-   1. An explicit path or `--qa-repo=` flag in `$ARGUMENTS`.
-   2. `.claude/qa-repo.local.json` in the current (code) repo — untracked, personal override (`{"qaRepoPath": "..."}`).
-   3. `.claude/qa-repo.json` in the current repo — committed team default, same shape.
-   4. Auto-detect: if exactly one sibling directory of the code repo root has `qa` in its name and contains a `.git` folder, use it, and offer to save it to `.claude/qa-repo.json` for next time.
-   5. If none of the above resolves unambiguously, stop and ask the human for the path — don't guess.
+5. Resolve the workspace layout to find the QA repo path (see "Resolving the workspace" below).
 6. Slugify the feature name (lowercase, hyphens, punctuation stripped) and write the populated document to `<qa-repo-path>/<feature-slug>/test-plan.md`, creating the folder if needed.
 7. Never run `git add`/`commit`/`push` in the QA repo. Tell the human the file was written and that they should review the diff and commit/push it themselves.
+
+## Resolving the workspace
+
+This plugin expects Claude Code to be launched from a **workspace root** folder containing exactly two git repos as direct subfolders: the project's code repo and its QA repo. Resolve in this order:
+
+1. Explicit `--code-repo=` / `--qa-repo=` paths in `$ARGUMENTS`, if given.
+2. `.claude/qa-workspace.json` in the current working directory — a local cache (not necessarily git-tracked, since the workspace root itself may not be a repo): `{"codeRepoPath": "...", "qaRepoPath": "..."}`, paths relative to the working directory unless absolute.
+3. Auto-detect: list the working directory's immediate subdirectories that contain a `.git` folder.
+   - If exactly two are found and exactly one has `qa` (case-insensitive) in its folder name, that one is the QA repo and the other is the code repo. Offer to cache this mapping to `.claude/qa-workspace.json`.
+   - Otherwise, the layout doesn't match what this plugin expects — stop and explain plainly what was actually found (e.g. "the current folder itself is a git repo, which usually means Claude Code was launched from inside a single repo instead of the shared workspace root", or "found 3 git repos, expected 2", or "found 2 git repos but couldn't tell which is which by name"). Ask the human to either tell you which folder is which, or relaunch Claude Code from the correct workspace root. Cache their answer to `.claude/qa-workspace.json` if given.

@@ -4,10 +4,21 @@ A [Claude Code](https://claude.com/claude-code) plugin for the QA team, run in *
 
 ## Relationship to the dev plugin and repos
 
-Each mobile project has two repos:
+Each mobile project has two repos: the **code repo** (dev works here; `ono-react-native-dev-plugin` runs here; its `/create-dev-qa-notes` command writes the completed QA handoff doc here) and a separate **QA repo** on Bitbucket (QA has write access; this plugin writes test plans and coverage reports here). **This plugin never commits or pushes to either repo** — the QA engineer always reviews the diff and pushes manually.
 
-- **Code repo** — where dev works, where `ono-react-native-dev-plugin` runs, and where its `/create-dev-qa-notes` command writes the completed QA handoff doc. This plugin's commands are also run from here (QA has read access).
-- **QA repo** — a separate Bitbucket repo (QA has write access), already cloned locally as a sibling folder next to the code repo. This plugin writes its test plans and coverage reports here. **It never commits or pushes** — the QA engineer always reviews the diff and pushes manually.
+## Required setup: a workspace root containing both repos
+
+This plugin needs to read from the code repo and write to the QA repo in the same session, so QA should clone both repos as **direct children of one shared workspace folder**, and launch Claude Code from that workspace root — not from inside either repo individually:
+
+```
+qa-workspace/              ← launch `claude` from here
+├── ono-app-x/              ← code repo (git)
+└── ono-app-x-qa/           ← QA repo (git), name contains "qa"
+```
+
+Since the workspace root itself is **not** a git repo, install the plugin **"for me"** rather than "for me and this repo" when prompted — the commands work the same regardless of which folder they're launched from, as long as it's the workspace root described above.
+
+If the plugin is launched from a folder that doesn't match this shape (e.g. from inside a single repo, or a workspace with the wrong number of repos), it stops and asks rather than guessing — see "Resolving the workspace" below.
 
 ## Install
 
@@ -27,13 +38,15 @@ claude --plugin-dir /path/to/ono-plugin-QA-ReactNative
 ## Quick start
 
 ```
-# Phase 1 — while dev is implementing, from the code repo
+# Run from the workspace root (see "Required setup" above)
+
+# Phase 1 — while dev is implementing
 /create-qa-test-plan checkout-redesign https://figma.com/file/...
-#  → writes <qa-repo>/checkout-redesign/test-plan.md
+#  → writes ono-app-x-qa/checkout-redesign/test-plan.md
 
 # Phase 2 — after dev hands off (dev has run /create-dev-qa-notes)
 /check-qa-coverage checkout-redesign
-#  → writes <qa-repo>/checkout-redesign/coverage-report.md
+#  → writes ono-app-x-qa/checkout-redesign/coverage-report.md
 
 # Then: review the diffs in the QA repo yourself and commit/push
 ```
@@ -42,8 +55,8 @@ claude --plugin-dir /path/to/ono-plugin-QA-ReactNative
 
 | Command | Arguments | What it does |
 |---|---|---|
-| `/create-qa-test-plan` | feature name, Figma link, QA repo path (optional) | Authors a QA test plan from the Figma design alone, independent of dev's progress |
-| `/check-qa-coverage` | feature name, dev handoff path (optional), QA repo path (optional) | Compares the QA test plan against dev's completed QA handoff notes and reports coverage gaps |
+| `/create-qa-test-plan` | feature name, Figma link, `--code-repo=`/`--qa-repo=` (optional overrides) | Authors a QA test plan from the Figma design alone, independent of dev's progress |
+| `/check-qa-coverage` | feature name, dev handoff path (optional), `--code-repo=`/`--qa-repo=` (optional overrides) | Compares the QA test plan against dev's completed QA handoff notes and reports coverage gaps |
 
 ## Pipeline
 
@@ -54,14 +67,14 @@ claude --plugin-dir /path/to/ono-plugin-QA-ReactNative
 
 Phase 1 depends on nothing but a Figma link — it can run the moment a feature is designed, in parallel with dev's implementation. Phase 2 depends on both the Phase 1 test plan and the dev plugin's `qa-handoff-template.md` output for the same feature, so it only runs once dev has handed off.
 
-## Locating the QA repo
+## Resolving the workspace
 
-Both commands resolve the QA sibling repo's path in this order, stopping to ask if none resolves unambiguously:
+Both commands resolve the code repo and QA repo paths in this order, stopping to ask if the layout doesn't resolve unambiguously:
 
-1. An explicit path (or `--qa-repo=`) passed in the command's arguments.
-2. `.claude/qa-repo.local.json` in the code repo — untracked, personal override: `{"qaRepoPath": "..."}`.
-3. `.claude/qa-repo.json` in the code repo — committed team default, same shape, for when every engineer on the project uses the same sibling folder name.
-4. Auto-detect: if exactly one sibling directory of the code repo has `qa` in its name and is a git repo, use it and offer to save it to `.claude/qa-repo.json`.
+1. Explicit `--code-repo=`/`--qa-repo=` paths passed in the command's arguments.
+2. `.claude/qa-workspace.json` in the workspace root (current working directory) — a local cache: `{"codeRepoPath": "...", "qaRepoPath": "..."}`.
+3. Auto-detect: list the working directory's immediate subdirectories that contain a `.git` folder. If exactly two are found and exactly one has `qa` in its name, that's the QA repo and the other is the code repo — this mapping is then offered to be cached to `.claude/qa-workspace.json`.
+4. Otherwise — e.g. the current folder is itself a git repo (wrong launch point), or there aren't exactly two identifiable repos — the command stops, explains what it actually found, and asks the human to clarify which folder is which or to relaunch from the correct workspace root.
 
 Within the QA repo, artifacts are organized per feature: `<feature-slug>/test-plan.md` and `<feature-slug>/coverage-report.md`.
 
