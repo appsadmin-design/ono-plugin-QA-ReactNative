@@ -1,7 +1,7 @@
 {
   "name": "ono-plugin-QA-ReactNative",
-  "description": "Figma-grounded QA test planning and dev/QA coverage gap analysis for Ono Apps' React Native features, run in parallel with ono-react-native-dev-plugin.",
-  "version": "0.1.0",
+  "description": "Figma- and spec/LLD-grounded QA test planning, approval, sync, and dev/QA coverage gap analysis for Ono Apps' React Native features, run in parallel with ono-react-native-dev-plugin.",
+  "version": "0.2.0",
   "author": {
     "name": "Ono Apps",
     "email": "magen@onoapps.com"

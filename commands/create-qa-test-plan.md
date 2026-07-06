@@ -1,17 +1,20 @@
 ---
-description: Author a QA test plan for a feature from its Figma design, independent of dev's implementation.
-argument-hint: [feature-name] [figma-link] [--code-repo=path?] [--qa-repo=path?]
+description: Author a QA test plan for a feature from its Figma design and/or spec/LLD, independent of dev's implementation.
+argument-hint: [feature-name] [figma-link?] [--spec=path-or-link?] [--code-repo=path?] [--qa-repo=path?]
 ---
 
-Author a QA test plan for the feature in `$ARGUMENTS`, from its Figma design alone. This runs in parallel with dev's implementation — it does not read or wait for any `ono-react-native-dev-plugin` output.
+Author a QA test plan for the feature in `$ARGUMENTS`, from its Figma design and/or spec/LLD alone. This runs in parallel with dev's implementation — it does not read or wait for any `ono-react-native-dev-plugin` output.
 
-1. Parse `$ARGUMENTS` for a feature name and a Figma URL (a `figma.com/...` link). A Figma link is this command's only spec source — no Jira/Confluence/dev-plan lookups. If no Figma link is present, stop and ask the human for one before proceeding; don't draft test cases from a feature name alone.
-2. Apply the `qa-test-planning` skill methodology via the `qa-test-designer` agent, passing it the feature name and Figma link.
-3. The agent inspects the actual Figma frames/screens/states via the `figma` MCP server (`get_metadata`, `get_design_context`, `get_screenshot`) and derives functional test cases, edge/negative cases, and open questions grounded strictly in what's designed — it does not invent flows the design doesn't show.
-4. Have the agent populate `templates/qa-test-plan-template.md` in full.
-5. Resolve the workspace layout to find the QA repo path (see "Resolving the workspace" below).
-6. Slugify the feature name (lowercase, hyphens, punctuation stripped) and write the populated document to `<qa-repo-path>/<feature-slug>/test-plan.md`, creating the folder if needed.
-7. Never run `git add`/`commit`/`push` in the QA repo. Tell the human the file was written and that they should review the diff and commit/push it themselves.
+1. Parse `$ARGUMENTS` for a feature name, an optional Figma URL (a `figma.com/...` link), and an optional `--spec=` path or link.
+2. Resolve the workspace layout to find the QA repo path (see "Resolving the workspace" below) — do this before any Figma/spec inspection so a workspace problem is caught before spending that effort.
+3. Slugify the feature name (lowercase, hyphens, punctuation stripped). If `<qa-repo-path>/<feature-slug>/test-plan.md` already exists, stop and tell the human to use `/sync-qa-test-plan` instead — never silently overwrite an existing plan.
+4. Ask the human once, upfront, in a single pause: confirm/collect the Figma link (if not already given), confirm/collect the spec/LLD link or path (if not already given via `--spec=`), and invite anything else they'd like to share (notes, other docs). If Figma or spec/LLD genuinely doesn't apply (e.g. no UI, no formal spec written yet), capture the stated reason rather than leaving it blank.
+5. Require at least one real source (Figma, spec/LLD, or another supplied doc) after that ask. If truly none exist, stop and ask again — don't draft test cases from a feature name alone.
+6. Apply the `qa-test-planning` skill methodology via the `qa-test-designer` agent, passing it the feature name and every source gathered (including the stated reasons for anything marked not applicable).
+7. The agent inspects the actual Figma frames/screens/states via the `figma` MCP server (`get_metadata`, `get_design_context`, `get_screenshot`) where a Figma link exists, reads the spec/LLD where one exists, and derives functional test cases, edge/negative cases, and open questions grounded strictly in those sources — it does not invent flows they don't show.
+8. Have the agent populate `templates/qa-test-plan-template.md` in full, including "Input Sources" with every source consulted (or marked `N/A — <reason>`).
+9. Write the populated document to `<qa-repo-path>/<feature-slug>/test-plan.md`, creating the folder if needed, with `status: draft`.
+10. Never run `git add`/`commit`/`push` in the QA repo. Tell the human the file was written, that they should review the diff, and that they should run `/approve-qa-test-plan` once satisfied before `/check-qa-coverage` can be used later.
 
 ## Resolving the workspace
 

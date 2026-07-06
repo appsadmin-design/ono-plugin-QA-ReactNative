@@ -1,6 +1,6 @@
 # ono-plugin-QA-ReactNative
 
-A [Claude Code](https://claude.com/claude-code) plugin for the QA team, run in **parallel** with `ono-react-native-dev-plugin`'s dev SDLC pipeline rather than after it. QA authors a Figma-grounded test plan while dev is still implementing, then — once dev delivers their QA handoff notes — checks that test plan against what was actually built to surface untested edge cases before test execution starts.
+A [Claude Code](https://claude.com/claude-code) plugin for the QA team, run in **parallel** with `ono-react-native-dev-plugin`'s dev SDLC pipeline rather than after it. QA authors a test plan grounded in Figma and/or a spec/LLD while dev is still implementing, approves it, keeps it in sync as the design/spec changes, then — once dev delivers their QA handoff notes — checks the approved test plan against what was actually built to surface untested edge cases before test execution starts.
 
 ## Relationship to the dev plugin and repos
 
@@ -41,12 +41,20 @@ claude --plugin-dir /path/to/ono-plugin-QA-ReactNative
 # Run from the workspace root (see "Required setup" above)
 
 # Phase 1 — while dev is implementing
-/create-qa-test-plan checkout-redesign https://figma.com/file/...
-#  → writes ono-app-x-qa/checkout-redesign/test-plan.md
+/create-qa-test-plan checkout-redesign https://figma.com/file/... --spec=./checkout-redesign-lld.md
+#  → writes ono-app-x-qa/checkout-redesign/test-plan.md, status: draft
+
+/approve-qa-test-plan checkout-redesign
+#  → flips status: approved once you're satisfied with the plan
+
+# If the design/spec changes before dev hands off:
+/sync-qa-test-plan checkout-redesign
+#  → refreshes test-plan.md against its recorded sources, appends a Change Log entry
+#     (resets status to draft if the change was substantive)
 
 # Phase 2 — after dev hands off (dev has run /create-dev-qa-notes)
 /check-qa-coverage checkout-redesign
-#  → writes ono-app-x-qa/checkout-redesign/coverage-report.md
+#  → requires test-plan.md's status to be "approved"; writes ono-app-x-qa/checkout-redesign/coverage-report.md
 
 # Then: review the diffs in the QA repo yourself and commit/push
 ```
@@ -55,17 +63,21 @@ claude --plugin-dir /path/to/ono-plugin-QA-ReactNative
 
 | Command | Arguments | What it does |
 |---|---|---|
-| `/create-qa-test-plan` | feature name, Figma link, `--code-repo=`/`--qa-repo=` (optional overrides) | Authors a QA test plan from the Figma design alone, independent of dev's progress |
-| `/check-qa-coverage` | feature name, dev handoff path (optional), `--code-repo=`/`--qa-repo=` (optional overrides) | Compares the QA test plan against dev's completed QA handoff notes and reports coverage gaps |
+| `/create-qa-test-plan` | feature name, Figma link (optional), `--spec=` (optional), `--code-repo=`/`--qa-repo=` (optional overrides) | Authors a QA test plan from Figma and/or a spec/LLD, independent of dev's progress |
+| `/approve-qa-test-plan` | feature name, `--qa-repo=` (optional override) | Marks a QA test plan `approved`, required before `/check-qa-coverage` will run |
+| `/sync-qa-test-plan` | feature name, `--qa-repo=` (optional override) | Re-checks a test plan's recorded sources for changes and updates it with a dated change log |
+| `/check-qa-coverage` | feature name, dev handoff path (optional), `--code-repo=`/`--qa-repo=` (optional overrides) | Compares an **approved** QA test plan against dev's completed QA handoff notes and reports coverage gaps |
 
 ## Pipeline
 
 | Phase | Command | Skill | Agent |
 |---|---|---|---|
 | 1. Test planning | `/create-qa-test-plan` | `qa-test-planning` | `qa-test-designer` |
+| 1. Approval | `/approve-qa-test-plan` | — (frontmatter edit) | — |
+| 1. Sync (as needed) | `/sync-qa-test-plan` | `qa-test-plan-sync` | `qa-test-plan-syncer` |
 | 2. Coverage check | `/check-qa-coverage` | `qa-coverage-analysis` | `qa-coverage-reviewer` |
 
-Phase 1 depends on nothing but a Figma link — it can run the moment a feature is designed, in parallel with dev's implementation. Phase 2 depends on both the Phase 1 test plan and the dev plugin's `qa-handoff-template.md` output for the same feature, so it only runs once dev has handed off.
+Phase 1 depends on nothing but a Figma link and/or a spec/LLD doc — it can run the moment a feature is designed/specified, in parallel with dev's implementation. A test plan must be approved via `/approve-qa-test-plan` before Phase 2 will run against it; `/sync-qa-test-plan` can be run any time beforehand (or after) to catch up with design/spec changes, and resets approval if it makes a substantive change. Phase 2 depends on both an approved Phase 1 test plan and the dev plugin's `qa-handoff-template.md` output for the same feature, so it only runs once dev has handed off.
 
 ## Resolving the workspace
 
@@ -94,8 +106,8 @@ One hook is always active while the plugin is installed:
 
 | Piece | Contents |
 |---|---|
-| `commands/` | `create-qa-test-plan`, `check-qa-coverage` |
-| `skills/` | `qa-test-planning`, `qa-coverage-analysis` |
-| `agents/` | `qa-test-designer`, `qa-coverage-reviewer` |
+| `commands/` | `create-qa-test-plan`, `approve-qa-test-plan`, `sync-qa-test-plan`, `check-qa-coverage` |
+| `skills/` | `qa-test-planning`, `qa-test-plan-sync`, `qa-coverage-analysis` |
+| `agents/` | `qa-test-designer`, `qa-test-plan-syncer`, `qa-coverage-reviewer` |
 | `templates/` | `qa-test-plan-template.md`, `qa-coverage-report-template.md` |
 | `hooks/` | `block-qa-repo-git-writes` |
