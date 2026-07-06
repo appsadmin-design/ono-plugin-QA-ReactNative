@@ -1,0 +1,18 @@
+{
+  "name": "ono-plugin-QA-ReactNative",
+  "description": "Figma-grounded QA test planning and dev/QA coverage gap analysis for Ono Apps' React Native features, run in parallel with ono-react-native-dev-plugin.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ono Apps",
+    "email": "magen@onoapps.com"
+  },
+  "hooks": [
+    "./hooks/block-qa-repo-git-writes.json"
+  ],
+  "mcpServers": {
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    }
+  }
+}
