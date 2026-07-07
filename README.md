@@ -1,10 +1,10 @@
-# ono-plugin-QA-ReactNative
+# ono-plugin-qa
 
-A [Claude Code](https://claude.com/claude-code) plugin for the QA team, run in **parallel** with `ono-react-native-dev-plugin`'s dev SDLC pipeline rather than after it. QA authors a test plan grounded in Figma and/or a spec/LLD while dev is still implementing, approves it, keeps it in sync as the design/spec changes, then — once dev delivers their QA handoff notes — checks the approved test plan against what was actually built to surface untested edge cases before test execution starts.
+A [Claude Code](https://claude.com/claude-code) plugin for the QA team, run in **parallel** with `ono-mobile-dev-plugin`'s dev SDLC pipeline rather than after it. QA authors a test plan grounded in Figma and/or a spec/LLD while dev is still implementing, approves it, keeps it in sync as the design/spec changes, then — once dev delivers their QA handoff notes — checks the approved test plan against what was actually built to surface untested edge cases before test execution starts.
 
 ## Relationship to the dev plugin and repos
 
-Each mobile project has two repos: the **code repo** (dev works here; `ono-react-native-dev-plugin` runs here; its `/create-dev-qa-notes` command writes the completed QA handoff doc here) and a separate **QA repo** on Bitbucket (QA has write access; this plugin writes test plans and coverage reports here). **This plugin never commits or pushes to either repo** — the QA engineer always reviews the diff and pushes manually.
+Each project has two repos: the **code repo** (dev works here; `ono-mobile-dev-plugin` runs here; its `/create-dev-qa-notes` command writes the completed QA handoff doc here) and a separate **QA repo** on Bitbucket (QA has write access; this plugin writes test plans and coverage reports here). **This plugin never commits or pushes to either repo** — the QA engineer always reviews the diff and pushes manually.
 
 ## Required setup: a workspace root containing both repos
 
@@ -26,13 +26,13 @@ From the marketplace:
 
 ```
 /plugin marketplace add appsadmin-design/ono-plugin-marketplace
-/plugin install ono-plugin-QA-ReactNative@ono-plugin-marketplace
+/plugin install ono-plugin-qa@ono-plugin-marketplace
 ```
 
 Local (for development of the plugin itself):
 
 ```bash
-claude --plugin-dir /path/to/ono-plugin-QA-ReactNative
+claude --plugin-dir /path/to/ono-plugin-qa
 ```
 
 ## Quick start

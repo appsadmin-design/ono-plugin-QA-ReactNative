@@ -4,6 +4,12 @@ All notable changes to this plugin are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] - 2026-07-07
+
+### Changed
+- Renamed the plugin from `ono-plugin-QA-ReactNative` to `ono-plugin-qa` and generalized its description to cover React, React Native, iOS, and Android — the plugin's actual test-planning and coverage-analysis logic has never had any platform-specific assumptions, so this is a branding/naming fix, not a behavior change.
+- Updated all references to the companion dev plugin from its old name `ono-react-native-dev-plugin` to its current name `ono-mobile-dev-plugin`.
+
 ## [0.2.0] - 2026-07-06
 
 ### Added

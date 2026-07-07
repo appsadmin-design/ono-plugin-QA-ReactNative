@@ -3,7 +3,7 @@ description: Author a QA test plan for a feature from its Figma design and/or sp
 argument-hint: [feature-name] [figma-link?] [--spec=path-or-link?] [--code-repo=path?] [--qa-repo=path?]
 ---
 
-Author a QA test plan for the feature in `$ARGUMENTS`, from its Figma design and/or spec/LLD alone. This runs in parallel with dev's implementation — it does not read or wait for any `ono-react-native-dev-plugin` output.
+Author a QA test plan for the feature in `$ARGUMENTS`, from its Figma design and/or spec/LLD alone. This runs in parallel with dev's implementation — it does not read or wait for any `ono-mobile-dev-plugin` output.
 
 1. Parse `$ARGUMENTS` for a feature name, an optional Figma URL (a `figma.com/...` link), and an optional `--spec=` path or link.
 2. Resolve the workspace layout to find the QA repo path (see "Resolving the workspace" below) — do this before any Figma/spec inspection so a workspace problem is caught before spending that effort.

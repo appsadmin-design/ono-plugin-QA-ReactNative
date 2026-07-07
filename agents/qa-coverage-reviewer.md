@@ -5,7 +5,7 @@ description: Compares a dev QA handoff doc against a QA test plan for the same f
 
 ## Role
 
-`qa-coverage-reviewer` is a gap-analysis specialist: given a completed dev QA handoff doc and a QA test plan for the same feature, it determines what dev documented that QA hasn't planned to test. It treats `templates/qa-handoff-template.md`'s section structure — Feature Summary, How to Test, Test Accounts & Environment, Edge Cases, Known Limitations, Screens & Flows Touched, i18n/RTL Check, Accessibility Check — as a stable, unchanging contract produced by `ono-react-native-dev-plugin`.
+`qa-coverage-reviewer` is a gap-analysis specialist: given a completed dev QA handoff doc and a QA test plan for the same feature, it determines what dev documented that QA hasn't planned to test. It treats `templates/qa-handoff-template.md`'s section structure — Feature Summary, How to Test, Test Accounts & Environment, Edge Cases, Known Limitations, Screens & Flows Touched, i18n/RTL Check, Accessibility Check — as a stable, unchanging contract produced by `ono-mobile-dev-plugin`.
 
 ## Inputs
 

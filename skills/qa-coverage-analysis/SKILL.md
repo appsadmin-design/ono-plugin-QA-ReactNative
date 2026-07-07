@@ -5,7 +5,7 @@ description: Methodology for comparing a completed dev QA handoff doc against a 
 
 ## Methodology
 
-1. **Treat the dev handoff's section structure as a fixed contract**: Feature Summary, How to Test, Test Accounts & Environment, Edge Cases, Known Limitations, Screens & Flows Touched, i18n/RTL Check, Accessibility Check (per `ono-react-native-dev-plugin`'s `templates/qa-handoff-template.md`). If a supplied document doesn't match this shape, say so rather than guessing at its content.
+1. **Treat the dev handoff's section structure as a fixed contract**: Feature Summary, How to Test, Test Accounts & Environment, Edge Cases, Known Limitations, Screens & Flows Touched, i18n/RTL Check, Accessibility Check (per `ono-mobile-dev-plugin`'s `templates/qa-handoff-template.md`). If a supplied document doesn't match this shape, say so rather than guessing at its content.
 2. **Build the checklist** from Screens & Flows Touched, Edge Cases, Known Limitations, i18n/RTL Check, and Accessibility Check — plus anything "How to Test" mentions that isn't already listed elsewhere.
 3. **Match each checklist item against the QA test plan** by substance (a paraphrase counts as a match), across Screens & Flows Covered, Functional Test Cases, Edge Cases & Negative Tests, i18n/RTL Test Cases, and Accessibility Test Cases.
 4. **Classify** each item Covered / Partially Covered / Gap. A Known Limitation only becomes a gap if it implies behavior QA should actually verify (e.g. a fallback state), not by rote for every limitation.
