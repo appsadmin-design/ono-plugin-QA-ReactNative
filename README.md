@@ -25,7 +25,7 @@ If the plugin is launched from a folder that doesn't match this shape (e.g. from
 From the marketplace:
 
 ```
-/plugin marketplace add appsadmin-design/ono-plugin-marketplace
+/plugin marketplace add OnOAppsDev/ono-plugin-marketplace
 /plugin install ono-plugin-qa@ono-plugin-marketplace
 ```
 
