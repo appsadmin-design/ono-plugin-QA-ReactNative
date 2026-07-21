@@ -4,6 +4,12 @@ All notable changes to this plugin are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] - 2026-07-21
+
+### Changed
+- `/create-qa-test-plan` no longer silently continues or hard-stops when the code repo sibling is missing from the workspace — it now pauses, explains that Phase 1 doesn't need the code repo but `/check-qa-coverage` will, and asks the human whether to continue anyway or stop to complete the workspace first.
+- `/check-qa-coverage` now asks the human for the dev QA handoff doc's path/link upfront, mirroring how `/create-qa-test-plan` asks for Figma/spec — it only falls back to searching the code repo for the doc if the human explicitly opts into a search, instead of always searching by default.
+
 ## [0.3.0] - 2026-07-07
 
 ### Changed
